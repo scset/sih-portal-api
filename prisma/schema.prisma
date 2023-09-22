@@ -1,0 +1,44 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Group {
+  id          String   @id @default(uuid())
+  members     String[]
+  meetingLink String?
+
+  specialization   Specialization? @relation(fields: [specializationId], references: [id])
+  specializationId String?
+
+  QueueItem QueueItem?
+}
+
+model Specialization {
+  id         String      @id @default(uuid())
+  name       String
+  queueItems QueueItem[]
+  Group      Group[]
+}
+
+model QueueItem {
+  id String @id @default(uuid())
+
+  group   Group  @relation(fields: [groupId], references: [id])
+  groupId String @unique
+
+  specialization   Specialization @relation(fields: [specializationId], references: [id])
+  specializationId String
+
+  createdAt DateTime @default(now())
+}
+
+model Mentor {
+  id       String @id @default(uuid())
+  email    String @unique
+  password String @default(uuid())
+}
