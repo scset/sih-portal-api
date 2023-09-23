@@ -5,6 +5,7 @@ import axios from "axios";
 import { PrismaService } from "../../lib/prisma";
 
 import { CreateGroup } from "./dto/create-group.dto";
+import { CreateGroupManually } from "./dto/create-group-manually.dto";
 
 @Injectable()
 export class GroupService {
@@ -40,10 +41,22 @@ export class GroupService {
       },
     });
 
-    console.log({ data });
-
     await this.prisma.group.create({
       data: { members, meetingLink: data.onlineMeeting.joinUrl },
+    });
+
+    return { ok: true, error: null };
+  }
+
+  async createGroupManually(createGroupManually: CreateGroupManually) {
+    const { members, meetingLink, apiKey } = createGroupManually;
+
+    if (apiKey !== this.config.get("API_KEY")) {
+      return { ok: false, error: "Invalid Api Key" };
+    }
+
+    await this.prisma.group.create({
+      data: { members, meetingLink },
     });
 
     return { ok: true, error: null };

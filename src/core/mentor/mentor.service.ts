@@ -4,6 +4,7 @@ import { PrismaService } from "../../lib/prisma";
 import { MentorLogin } from "./dto/mentor-login.dto";
 import { MentorAdd } from "./dto/mentor-add.dto";
 import { ConfigService } from "@nestjs/config";
+import { ApiKeyDto } from "../../common/dto/api-key.dto";
 
 @Injectable()
 export class MentorService {
@@ -38,5 +39,22 @@ export class MentorService {
     }
 
     return { ok: true, error: null, mentor };
+  }
+
+  async extractData(apiKeyDto: ApiKeyDto) {
+    const { apiKey } = apiKeyDto;
+
+    if (apiKey !== this.config.get("API_KEY")) {
+      return { ok: false, error: "Invalid Api Key" };
+    }
+
+    const mentors = await this.prisma.mentor.findMany();
+
+    return {
+      ok: true,
+      data: mentors.map((mentor) => {
+        return [mentor.email, mentor.password];
+      }),
+    };
   }
 }
