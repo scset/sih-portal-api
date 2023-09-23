@@ -10,7 +10,7 @@ import { MeetingUrl } from "./dto/meeting-url.dto";
 export class MeetingService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
   ) {}
 
   async getMeetingUrl(MeetingUrl: MeetingUrl) {

@@ -1,13 +1,23 @@
 import { Injectable } from "@nestjs/common";
 
 import { PrismaService } from "../../lib/prisma";
+import { ApiKeyDto } from "../../common/dto/api-key.dto";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class SpecializationService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
-  async createSpecialization() {
+  async createSpecialization(apiKey: ApiKeyDto) {
+    if (apiKey !== this.config.get("API_KEY")) {
+      return { ok: false, error: "Invalid Api Key" };
+    }
+
     const specialization = [
+      "General Request",
       "AI",
       "DataScience",
       "Blockchain",
@@ -24,6 +34,7 @@ export class SpecializationService {
       "Cloud Computing",
       "Robotics Process Automation",
     ];
+
     specialization.forEach(async (sep) => {
       await this.prisma.specialization.create({ data: { name: sep } });
     });

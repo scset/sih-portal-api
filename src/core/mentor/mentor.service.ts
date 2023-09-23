@@ -1,31 +1,27 @@
 import { Injectable } from "@nestjs/common";
-import { v4 as uuidv4 } from "uuid";
-
 import { PrismaService } from "../../lib/prisma";
 
 import { MentorLogin } from "./dto/mentor-login.dto";
+import { MentorAdd } from "./dto/mentor-add.dto";
+import { ConfigService } from "@nestjs/config";
 
 @Injectable()
 export class MentorService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly config: ConfigService,
+  ) {}
 
-  async add(mentorLogin: MentorLogin) {
-    const { email, password } = mentorLogin;
+  async add(mentorAdd: MentorAdd) {
+    const { email, apiKey } = mentorAdd;
 
-    const en = () => {
-      const uuid = uuidv4().split("-");
-      return `E23CSEU${uuid[uuid.length - 1].substring(6)}`;
-    };
+    if (apiKey !== this.config.get("API_KEY")) {
+      return { ok: false, error: "Invalid Api Key" };
+    }
 
     await this.prisma.mentor.create({
-      data: {
-        email: `${en()}@bennett.edu.in`,
-      },
+      data: { email },
     });
-
-    // if (!findGroup || !findGroup.members.includes(teamMemberEnrollment2)) {
-    //   return { ok: false, error: "Invalid Details" };
-    // }
 
     return { ok: true, error: null };
   }

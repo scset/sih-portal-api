@@ -1,14 +1,14 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable } from "@nestjs/common";
 // import { v4 as uuidv4 } from "uuid";
-import { ConfigService } from '@nestjs/config';
-import axios from 'axios';
-import * as dayjs from 'dayjs';
+import { ConfigService } from "@nestjs/config";
+import axios from "axios";
+import * as dayjs from "dayjs";
 
-import { PrismaService } from '../../lib/prisma';
+import { PrismaService } from "../../lib/prisma";
 
-import { AddQueue } from './dto/add-queue.dto';
-import { QueueId } from './dto/queue-id.dto';
-import { SpecializationId } from './dto/specialization-id.dto';
+import { AddQueue } from "./dto/add-queue.dto";
+import { QueueId } from "./dto/queue-id.dto";
+import { SpecializationId } from "./dto/specialization-id.dto";
 
 @Injectable()
 export class QueueService {
@@ -28,7 +28,7 @@ export class QueueService {
       return {
         ok: false,
         error: null,
-        data: '',
+        data: "",
       };
     }
 
@@ -53,8 +53,8 @@ export class QueueService {
     }
 
     const { data } = await axios({
-      method: 'post',
-      url: `${this.config.get('API_URL')}/meeting/url`,
+      method: "post",
+      url: `${this.config.get("API_URL")}/meeting/url`,
       data: {
         groupId: queueItem.groupId,
       },
@@ -77,7 +77,7 @@ export class QueueService {
     if (queueItem) {
       return {
         ok: false,
-        error: 'A team can only ask for a mentor at a time.',
+        error: "A team can only ask for a mentor at a time.",
       };
     }
 
@@ -101,7 +101,7 @@ export class QueueService {
     if (!queueItem) {
       return {
         ok: false,
-        error: 'You do not have any active mentor request.',
+        error: "You do not have any active mentor request.",
       };
     }
 
@@ -118,7 +118,7 @@ export class QueueService {
     if (!queueItem) {
       return {
         ok: false,
-        error: 'You do not have any active mentor request.',
+        error: "You do not have any active mentor request.",
       };
     }
 
