@@ -1,20 +1,20 @@
-import { Injectable } from "@nestjs/common";
+import { Injectable } from '@nestjs/common';
 // import { v4 as uuidv4 } from "uuid";
-import { ConfigService } from "@nestjs/config";
-import axios from "axios";
-import dayjs from "dayjs";
+import { ConfigService } from '@nestjs/config';
+import axios from 'axios';
+import * as dayjs from 'dayjs';
 
-import { PrismaService } from "../../lib/prisma";
+import { PrismaService } from '../../lib/prisma';
 
-import { AddQueue } from "./dto/add-queue.dto";
-import { QueueId } from "./dto/queue-id.dto";
-import { SpecializationId } from "./dto/specialization-id.dto";
+import { AddQueue } from './dto/add-queue.dto';
+import { QueueId } from './dto/queue-id.dto';
+import { SpecializationId } from './dto/specialization-id.dto';
 
 @Injectable()
 export class QueueService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService
+    private readonly config: ConfigService,
   ) {}
 
   async next(specializationId: SpecializationId) {
@@ -28,42 +28,42 @@ export class QueueService {
       return {
         ok: false,
         error: null,
-        data: "",
+        data: '',
       };
     }
 
-    let groupId;
+    let queueItem;
 
     if (specializationQueue.length === 1) {
-      groupId = specializationQueue[0].groupId;
+      queueItem = specializationQueue[0];
     } else {
-      const dateTimeArray = specializationQueue.map((dt) =>
-        dayjs(dt.createdAt)
-      );
+      const dateTimeArray = specializationQueue.map((dt) => {
+        return dayjs(dt.createdAt);
+      });
 
       const earliestTimestamp = dateTimeArray.reduce((min, current) => {
         return min.isBefore(current) ? min : current;
       });
 
       const oldestQueue = specializationQueue.find(
-        (el) => el.createdAt.toISOString() === earliestTimestamp.toISOString()
+        (el) => el.createdAt.toISOString() === earliestTimestamp.toISOString(),
       );
 
-      groupId = oldestQueue.groupId;
+      queueItem = oldestQueue;
     }
 
     const { data } = await axios({
-      method: "post",
-      url: `${this.config.get("API_URL")}/meeting/url`,
+      method: 'post',
+      url: `${this.config.get('API_URL')}/meeting/url`,
       data: {
-        groupId,
+        groupId: queueItem.groupId,
       },
     });
 
     return {
       ok: true,
       error: null,
-      data: data.data,
+      data: { queueItem, meetingLink: data.data },
     };
   }
 
@@ -77,7 +77,7 @@ export class QueueService {
     if (queueItem) {
       return {
         ok: false,
-        error: "A team can only ask for a mentor at a time.",
+        error: 'A team can only ask for a mentor at a time.',
       };
     }
 
@@ -101,7 +101,7 @@ export class QueueService {
     if (!queueItem) {
       return {
         ok: false,
-        error: "You do not have any active mentor request.",
+        error: 'You do not have any active mentor request.',
       };
     }
 
@@ -118,7 +118,7 @@ export class QueueService {
     if (!queueItem) {
       return {
         ok: false,
-        error: "You do not have any active mentor request.",
+        error: 'You do not have any active mentor request.',
       };
     }
 
