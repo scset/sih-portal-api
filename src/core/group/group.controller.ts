@@ -15,6 +15,6 @@ export class GroupController {
 
   @Post("create-manually")
   createGroupManually(@Body() createGroupManually: CreateGroupManually) {
-    return this.groupService.createGroup(createGroupManually);
+    return this.groupService.createGroupManually(createGroupManually);
   }
 }
