@@ -11,7 +11,9 @@ export class SpecializationService {
     private readonly config: ConfigService,
   ) {}
 
-  async createSpecialization(apiKey: ApiKeyDto) {
+  async createSpecialization(apiKeyDto: ApiKeyDto) {
+    const { apiKey } = apiKeyDto;
+
     if (apiKey !== this.config.get("API_KEY")) {
       return { ok: false, error: "Invalid Api Key" };
     }
