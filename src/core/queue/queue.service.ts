@@ -1,24 +1,24 @@
 import { Injectable } from "@nestjs/common";
-// import { v4 as uuidv4 } from "uuid";
-import { ConfigService } from "@nestjs/config";
-import axios from "axios";
 import * as dayjs from "dayjs";
 
 import { PrismaService } from "../../lib/prisma";
 
 import { AddQueue } from "./dto/add-queue.dto";
 import { QueueId } from "./dto/queue-id.dto";
-import { SpecializationId } from "./dto/specialization-id.dto";
+import { MeetingService } from "src/core/meeting/meeting.service";
+import { QueueItem } from "@prisma/client";
+import { NextQueueItemDto } from "src/core/queue/dto/next-queue-item.dto";
+import { GroupIdDto } from "src/core/queue/dto/group-id.dto";
 
 @Injectable()
 export class QueueService {
   constructor(
     private readonly prisma: PrismaService,
-    private readonly config: ConfigService,
+    private readonly meetingService: MeetingService,
   ) {}
 
-  async next(specializationId: SpecializationId) {
-    const { specialization } = specializationId;
+  async next(nextQueueItem: NextQueueItemDto) {
+    const { specialization, mentorId } = nextQueueItem;
 
     const specializationQueue = await this.prisma.queueItem.findMany({
       where: { specializationId: specialization },
@@ -32,7 +32,7 @@ export class QueueService {
       };
     }
 
-    let queueItem;
+    let queueItem: QueueItem;
 
     if (specializationQueue.length === 1) {
       queueItem = specializationQueue[0];
@@ -52,18 +52,21 @@ export class QueueService {
       queueItem = oldestQueue;
     }
 
-    const { data } = await axios({
-      method: "post",
-      url: `${this.config.get("API_URL")}/meeting/url`,
+    const res = await this.meetingService.getMeetingUrlFromGroup({
+      groupId: queueItem.groupId,
+    });
+
+    await this.prisma.mentor.update({
+      where: { id: mentorId },
       data: {
-        groupId: queueItem.groupId,
+        queueItemId: queueItem.id,
       },
     });
 
     return {
       ok: true,
       error: null,
-      data: { queueItem, meetingLink: data.data },
+      data: { queueItem, meetingLink: res.data },
     };
   }
 
@@ -88,24 +91,18 @@ export class QueueService {
       },
     });
 
-    return { ok: true, error: null, data: newQueueItem.id };
+    return { ok: true, error: null, queueId: newQueueItem.id };
   }
 
-  async find(queueIdDto: QueueId) {
-    const { queueId } = queueIdDto;
+  async getMentorship(groupIdDto: GroupIdDto) {
+    const { groupId } = groupIdDto;
 
-    const queueItem = await this.prisma.queueItem.findUnique({
-      where: { id: queueId },
+    const group = await this.prisma.group.findUnique({
+      where: { id: groupId },
+      include: { queueItem: true },
     });
 
-    if (!queueItem) {
-      return {
-        ok: false,
-        error: "You do not have any active mentor request.",
-      };
-    }
-
-    return { ok: true, error: null, data: queueItem };
+    return { ok: true, error: null, data: group };
   }
 
   async delete(queueIdDto: QueueId) {
@@ -118,7 +115,7 @@ export class QueueService {
     if (!queueItem) {
       return {
         ok: false,
-        error: "You do not have any active mentor request.",
+        error: "Queue item does not exist.",
       };
     }
 

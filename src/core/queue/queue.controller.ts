@@ -2,16 +2,17 @@ import { Body, Controller, Post } from "@nestjs/common";
 
 import { AddQueue } from "./dto/add-queue.dto";
 import { QueueId } from "./dto/queue-id.dto";
-import { SpecializationId } from "./dto/specialization-id.dto";
 import { QueueService } from "./queue.service";
+import { NextQueueItemDto } from "src/core/queue/dto/next-queue-item.dto";
+import { GroupIdDto } from "src/core/queue/dto/group-id.dto";
 
 @Controller("queue")
 export class QueueController {
   constructor(private readonly queueService: QueueService) {}
 
   @Post("next")
-  next(@Body() specializationId: SpecializationId) {
-    return this.queueService.next(specializationId);
+  next(@Body() nextQueueItem: NextQueueItemDto) {
+    return this.queueService.next(nextQueueItem);
   }
 
   @Post("add")
@@ -20,8 +21,8 @@ export class QueueController {
   }
 
   @Post("find")
-  find(@Body() queueId: QueueId) {
-    return this.queueService.find(queueId);
+  getMentorship(@Body() groupIdDto: GroupIdDto) {
+    return this.queueService.getMentorship(groupIdDto);
   }
 
   @Post("delete")

@@ -18,24 +18,26 @@ export class SpecializationService {
       return { ok: false, error: "Invalid Api Key" };
     }
 
-    const specialization = [
-      "General Request",
-      "AI",
-      "DataScience",
-      "Blockchain",
-      "FullStack",
-      "DevOps",
-      "IOT",
-      "Quantum Computing",
-      "Mobile Technology",
-      "Drones",
-      "AR/VR",
-      "Gaming",
-      "CyberSecurity",
-      "Product Design Technology",
-      "Cloud Computing",
-      "Robotics Process Automation",
-    ];
+    // const specialization = [
+    //   "General Request",
+    //   "AI",
+    //   "DataScience",
+    //   "Blockchain",
+    //   "FullStack",
+    //   "DevOps",
+    //   "IOT",
+    //   "Quantum Computing",
+    //   "Mobile Technology",
+    //   "Drones",
+    //   "AR/VR",
+    //   "Gaming",
+    //   "CyberSecurity",
+    //   "Product Design Technology",
+    //   "Cloud Computing",
+    //   "Robotics Process Automation",
+    // ];
+
+    const specialization = ["General Request", "AI", "DataScience", "IOT"];
 
     specialization.forEach(async (sep) => {
       await this.prisma.specialization.create({ data: { name: sep } });

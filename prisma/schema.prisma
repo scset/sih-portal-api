@@ -12,17 +12,13 @@ model Group {
   members     String[]
   meetingLink String?
 
-  specialization   Specialization? @relation(fields: [specializationId], references: [id])
-  specializationId String?
-
-  QueueItem QueueItem?
+  queueItem QueueItem?
 }
 
 model Specialization {
   id         String      @id @default(uuid())
   name       String
   queueItems QueueItem[]
-  Group      Group[]
 }
 
 model QueueItem {
@@ -35,10 +31,14 @@ model QueueItem {
   specializationId String
 
   createdAt DateTime @default(now())
+  mentor    Mentor?
 }
 
 model Mentor {
   id       String @id @default(uuid())
   email    String @unique
   password String @default(uuid())
+
+  queueItem   QueueItem? @relation(fields: [queueItemId], references: [id])
+  queueItemId String?    @unique
 }
